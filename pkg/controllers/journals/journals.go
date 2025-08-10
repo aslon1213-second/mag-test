@@ -125,9 +125,35 @@ func (j *JournalHandlers) QueryJournalEntries(c *fiber.Ctx) error {
 	if queryParams.PageSize == 0 {
 		queryParams.PageSize = 10
 	}
+	queryParams.BranchID = c.Params("branch_id")
+	results, err := QueryJournals(span, ctx, c, queryParams, j.JournalCollection)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to query journal entries")
+		return c.Status(fiber.StatusInternalServerError).JSON(models.NewOutput([]interface{}{}, models.Error{
+			Message: err.Error(),
+			Code:    fiber.StatusInternalServerError,
+		}))
+	}
+	// log.Info().Interface("results", results).Msg("Results")
+	return c.Status(fiber.StatusOK).JSON(models.NewOutput(results))
+}
+
+func QueryJournals(span trace.Span, ctx context.Context, c *fiber.Ctx, queryParams models.JournalQueryParams, journalsCollection *mongo.Collection) ([]models.Journal, error) {
+
+	match := bson.M{}
+	// if !queryParams.FromDate.IsZero() {
+	// 	match["date"] = bson.M{"$gte": queryParams.FromDate}
+	// }
+	// if !queryParams.ToDate.IsZero() {
+	// 	match["date"] = bson.M{"$lte": queryParams.ToDate}
+	// }
+	if queryParams.BranchID != "" {
+		match["branch._id"] = queryParams.BranchID
+	}
+	match["total"] = bson.M{"$ne": 0, "$gte": 0, "$lte": 30000000}
 
 	pipeline := mongo.Pipeline{
-		{{Key: "$match", Value: bson.D{{Key: "branch._id", Value: c.Params("branch_id")}}}},
+		{{Key: "$match", Value: match}},
 		{{Key: "$sort", Value: bson.D{{Key: "date", Value: -1}}}},              // Sort by date in ascending order
 		{{Key: "$skip", Value: (queryParams.Page - 1) * queryParams.PageSize}}, // Skip the first N documents = page_size * page_number
 		{{Key: "$limit", Value: queryParams.PageSize}},                         // Limit the number of documents returned = page_size
@@ -152,28 +178,21 @@ func (j *JournalHandlers) QueryJournalEntries(c *fiber.Ctx) error {
 		},
 	}
 	span.AddEvent("Created pipeline")
-	cursor, err := j.JournalCollection.Aggregate(ctx, pipeline)
+	cursor, err := journalsCollection.Aggregate(ctx, pipeline)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to aggregate journal entries")
-		return c.Status(fiber.StatusInternalServerError).JSON(models.NewOutput([]interface{}{}, models.Error{
-			Message: err.Error(),
-			Code:    fiber.StatusInternalServerError,
-		}))
+		return nil, err
 	}
 	defer cursor.Close(ctx)
 	span.AddEvent("Got cursor")
 	var results []models.Journal
 	if err := cursor.All(ctx, &results); err != nil {
 		log.Error().Err(err).Msg("Failed to decode journal entries")
-		return c.Status(fiber.StatusInternalServerError).JSON(models.NewOutput([]interface{}{}, models.Error{
-			Message: err.Error(),
-			Code:    fiber.StatusInternalServerError,
-		}))
+		return nil, err
 	}
 	span.AddEvent("Got results", trace.WithAttributes(attribute.Int("results_count", len(results))))
 	log.Info().Msgf("Successfully queried journal entries")
-	// log.Info().Interface("results", results).Msg("Results")
-	return c.Status(fiber.StatusOK).JSON(models.NewOutput(results))
+	return results, nil
 }
 
 // NewJournalEntry godoc

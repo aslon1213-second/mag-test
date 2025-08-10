@@ -85,8 +85,8 @@ func getFirstClosedJournal(t *testing.T, journals []models.Journal) models.Journ
 
 func getJournals(t *testing.T, c *client.Client, branchID string, page, pageSize uint8) []models.Journal {
 	resp, journals_output, err := c.QueryJournalEntries(branchID, models.JournalQueryParams{
-		Page:     page,
-		PageSize: pageSize,
+		Page:     int(page),
+		PageSize: int(pageSize),
 	})
 	if err != nil {
 		t.Fatal(err)

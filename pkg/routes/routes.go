@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"github.com/aslon1213/go-pos-erp/pkg/configs"
+	"github.com/aslon1213/go-pos-erp/pkg/controllers/analytics"
 	"github.com/aslon1213/go-pos-erp/pkg/controllers/auth"
 	"github.com/aslon1213/go-pos-erp/pkg/controllers/customers"
 	"github.com/aslon1213/go-pos-erp/pkg/controllers/customers/bnpl"
@@ -13,7 +15,31 @@ import (
 	"github.com/aslon1213/go-pos-erp/pkg/middleware"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/basicauth"
+	"github.com/rs/zerolog/log"
 )
+
+func DashboardRoutes(router *fiber.App, dashboardController *analytics.DashboardHandler, middleware *middleware.Middlewares) {
+	dashboard := router.Group("/dashboard")
+	config, err := configs.LoadConfig(".")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to load config")
+	}
+	auth := basicauth.New(basicauth.Config{
+		Users: map[string]string{
+			config.Server.AdminDocsUsers[0].Username: config.Server.AdminDocsUsers[0].Password,
+			config.Server.AdminDocsUsers[1].Username: config.Server.AdminDocsUsers[1].Password,
+		},
+		Realm: "Restricted",
+	})
+
+	// log.Debug().Interface("auth", auth).Msg("Auth middleware initialized")
+	dashboard.Get("/journals", auth, dashboardController.ServeDashBoardDays)
+	dashboard.Get("/general", auth, dashboardController.ServeDashBoardGeneral)
+	dashboard.Get("/comparison", auth, dashboardController.ServeDashBoardComparison)
+	dashboard.Get("/", auth, dashboardController.MainPage)
+	// dashboard.Get("/branches")
+}
 
 func AuthRoutes(router *fiber.App, authController *auth.AuthControllers, middleware *middleware.Middlewares) {
 	auth := router.Group("/auth")

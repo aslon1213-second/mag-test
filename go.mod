@@ -5,6 +5,7 @@ go 1.24.3
 require (
 	github.com/aws/aws-sdk-go-v2 v1.36.5
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.82.0
+	github.com/go-echarts/go-echarts/v2 v2.6.1
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gofiber/contrib/otelfiber v1.0.10

@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/aslon1213/go-pos-erp/pkg/configs"
+	"github.com/aslon1213/go-pos-erp/pkg/controllers/analytics"
 	"github.com/aslon1213/go-pos-erp/pkg/controllers/auth"
 	"github.com/aslon1213/go-pos-erp/pkg/controllers/customers"
 	"github.com/aslon1213/go-pos-erp/pkg/controllers/customers/bnpl"
@@ -32,6 +33,7 @@ type Controllers struct {
 	BNPL         *bnpl.BNPLController
 	Customers    *customers.CustomersController
 	Middlewares  *middleware.Middlewares
+	Dashboard    *analytics.DashboardHandler
 }
 
 func NewControllers(db *mongo.Database, cache *cache.Cache) *Controllers {
@@ -49,6 +51,7 @@ func NewControllers(db *mongo.Database, cache *cache.Cache) *Controllers {
 		Customers:    customers.New(db, cache),
 		BNPL:         bnpl.New(db, cache),
 		Middlewares:  middleware,
+		Dashboard:    analytics.New(db),
 	}
 	log.Debug().Msg("Controllers initialized successfully")
 	return controllers
@@ -86,5 +89,7 @@ func SetupRoutes(app *fiber.App, controllers *Controllers) {
 	log.Debug().Msg("Customer routes set up successfully")
 	routes.BNPLRoutes(app, controllers.BNPL, controllers.Middlewares)
 	log.Debug().Msg("BNPL routes set up successfully")
+	routes.DashboardRoutes(app, controllers.Dashboard, controllers.Middlewares)
+	log.Debug().Msg("Dashboard routes set up successfully")
 	log.Debug().Msg("All routes set up successfully")
 }

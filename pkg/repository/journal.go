@@ -62,8 +62,11 @@ type NewJournalEntryInput struct {
 }
 
 type JournalQueryParams struct {
-	Page     uint8 `query:"page" default:"1"`
-	PageSize uint8 `query:"page_size" default:"10"`
+	BranchID string    `query:"branch_id" default:""`
+	FromDate time.Time `query:"from_date" default:""`
+	ToDate   time.Time `query:"to_date" default:""`
+	Page     int       `query:"page" default:"1"`
+	PageSize int       `query:"page_size" default:"10"`
 }
 
 type JournalOperationInput struct {
