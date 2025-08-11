@@ -126,6 +126,7 @@ func (j *JournalHandlers) QueryJournalEntries(c *fiber.Ctx) error {
 		queryParams.PageSize = 10
 	}
 	queryParams.BranchID = c.Params("branch_id")
+	log.Info().Interface("queryParams", queryParams).Msg("Querying journal entries")
 	results, err := QueryJournals(span, ctx, c, queryParams, j.JournalCollection)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to query journal entries")
@@ -150,7 +151,9 @@ func QueryJournals(span trace.Span, ctx context.Context, c *fiber.Ctx, queryPara
 	if queryParams.BranchID != "" {
 		match["branch._id"] = queryParams.BranchID
 	}
-	match["total"] = bson.M{"$ne": 0, "$gte": 0, "$lte": 30000000}
+	if queryParams.Total.Use {
+		match["total"] = bson.M{"$gte": queryParams.Total.Min, "$lte": queryParams.Total.Max}
+	}
 
 	pipeline := mongo.Pipeline{
 		{{Key: "$match", Value: match}},
@@ -191,7 +194,7 @@ func QueryJournals(span trace.Span, ctx context.Context, c *fiber.Ctx, queryPara
 		return nil, err
 	}
 	span.AddEvent("Got results", trace.WithAttributes(attribute.Int("results_count", len(results))))
-	log.Info().Msgf("Successfully queried journal entries")
+	log.Info().Int("results_count", len(results)).Msgf("Successfully queried journal entries")
 	return results, nil
 }
 

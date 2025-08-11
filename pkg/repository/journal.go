@@ -61,12 +61,19 @@ type NewJournalEntryInput struct {
 	Date           time.Time `json:"date"`
 }
 
+type TotalValueQueryParams struct {
+	Min int32 `query:"min" default:"-1"`
+	Max int32 `query:"max" default:"30000000"`
+	Use bool  `query:"used" default:"false"`
+}
+
 type JournalQueryParams struct {
 	BranchID string    `query:"branch_id" default:""`
 	FromDate time.Time `query:"from_date" default:""`
 	ToDate   time.Time `query:"to_date" default:""`
 	Page     int       `query:"page" default:"1"`
 	PageSize int       `query:"page_size" default:"10"`
+	Total    TotalValueQueryParams
 }
 
 type JournalOperationInput struct {
