@@ -1,0 +1,19 @@
+{
+	"sans": [
+		"www.g4h.uz"
+	],
+	"issuer_data": {
+		"url": "https://acme-v02.api.letsencrypt.org/acme/cert/05b42fd6fcf6ba3a2cf7b6de5ca76a246af4",
+		"ca": "https://acme-v02.api.letsencrypt.org/directory",
+		"account": "https://acme-v02.api.letsencrypt.org/acme/acct/2641373321",
+		"renewal_info": {
+			"suggestedWindow": {
+				"start": "2025-11-03T12:51:41Z",
+				"end": "2025-11-05T08:02:31Z"
+			},
+			"_uniqueIdentifier": "rkie3IcdRKBv2qLlYHQEeMKcAIA.BbQv1vz2ujos97beXKdqJGr0",
+			"_retryAfter": "2025-09-05T17:06:09.034250225Z",
+			"_selectedTime": "2025-11-04T01:08:44Z"
+		}
+	}
+}

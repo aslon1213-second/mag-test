@@ -34,14 +34,20 @@ services:
     #     condition: service_healthy
     networks:
       - mongoCluster
+      - caddy
     volumes:
       - ../config.yaml:/app/config.yaml
       - ../tmp:/app/tmp
       # - ../docs:/app/docs
     environment:
       - ENVIRONMENT=PRODUCTION
-
+    labels:
+      caddy: api.g4h.uz
+      caddy.reverse_proxy: "http://api:12000"
 networks:
   mongoCluster:
     name: mongoCluster
+    external: true
+  caddy:
+    name: caddy
     external: true

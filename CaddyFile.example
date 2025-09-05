@@ -1,0 +1,9 @@
+api.example.com {
+	reverse_proxy http://api:12000
+}
+www.example.com {
+	reverse_proxy http://magazin-frontend:3000
+}
+zayavka.example.com {
+    reverse_proxy http://arrivals:11000
+}

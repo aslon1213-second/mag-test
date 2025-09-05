@@ -43,3 +43,6 @@ journal_api.journals.json
 data/
 config.local.yaml
 mongo-keyfile
+CaddyFile
+dump/
+deploy/caddy_data/
