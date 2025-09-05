@@ -22,8 +22,11 @@ docker run -d  \
   -p 27017:27017 \
   --name mongo1 \
   --network mongoCluster \
+  --network caddy \
   -e MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME \
   -e MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD \
+  --label "caddy: $DATABASE_HOST" \
+  --label "caddy.reverse_proxy: http://$DATABASE_HOST:27017" \
   -v ./mongo-keyfile:/data/keyfile \
   mongo:5 \
   mongod --bind_ip_all --replSet myReplicaSet --auth --keyFile /data/keyfile
