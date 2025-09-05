@@ -45,4 +45,4 @@ config.local.yaml
 mongo-keyfile
 CaddyFile
 dump/
-deploy/caddy_data/
+caddy_data/
