@@ -8,7 +8,7 @@ database:
   min_pool_size: 10
   auth: false
   replica_set: myReplicaSet
-  url: mongodb://admin:admin@localhost:27017/?replicate_set=myReplicaSet
+  url: mongodb://admin:admin@localhost:27017/?replicate_set=myReplicaSet      
 
 s3:
   region: ""
